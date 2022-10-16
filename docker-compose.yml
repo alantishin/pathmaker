@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+
+  api:
+    container_name: ways-api
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    volumes:
+      - ./api:/home/app
+    ports:
+      - 8080:8080
+    env_file: ./configs/.api.example.env
+    tty: true
+    stdin_open: true
+
+  db:
+    container_name: ways-db
+    build:
+      context: ./dockerfiles
+      dockerfile: db.dockerfile
+    env_file: ./configs/.db.example.env
+

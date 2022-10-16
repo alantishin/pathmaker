@@ -1,0 +1,10 @@
+app:
+  name: 'go-ways-api'
+  version: '1.0.0'
+
+logger:
+  log_level: 'debug'
+  rollbar_env: 'go-ways-api'
+
+postgres:
+  pool_max: 2
