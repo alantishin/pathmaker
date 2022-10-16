@@ -21,6 +21,8 @@ services:
       context: ./dockerfiles
       dockerfile: db.dockerfile
     env_file: ./configs/.db.example.env
+    ports:
+      - 5432:5432
     volumes:
       - ./vdata/db:/var/lib/postgresql/data
 
