@@ -12,8 +12,7 @@ services:
     ports:
       - 8080:8080
     env_file: ./configs/.api.example.env
-    tty: true
-    stdin_open: true
+    
     
 
   db:
@@ -25,3 +24,14 @@ services:
     volumes:
       - ./vdata/db:/var/lib/postgresql/data
 
+
+  import:
+    container_name: ways-import
+    build:
+      context: ./import
+      dockerfile: Dockerfile
+    env_file: ./configs/.api.example.env
+    volumes:
+      - ./vdata/osm:/home/data
+    tty: true
+    stdin_open: true
