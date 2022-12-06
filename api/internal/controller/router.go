@@ -1,16 +1,15 @@
-// Package v1 implements routing paths. Each services in own file.
-package v1
+package controller
 
 import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/rs/zerolog"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
 	// Swagger docs.
-	"ways/pkg/logger"
 
 	_ "github.com/evrone/go-clean-template/docs"
 )
@@ -22,7 +21,7 @@ import (
 // @version     1.0
 // @host        localhost:8080
 // @BasePath    /v1
-func NewRouter(handler *gin.Engine, l logger.Interface) {
+func NewRouter(handler *gin.Engine, l *zerolog.Logger) {
 	// Options
 	handler.Use(gin.Logger())
 	handler.Use(gin.Recovery())
@@ -37,9 +36,4 @@ func NewRouter(handler *gin.Engine, l logger.Interface) {
 	// Prometheus metrics
 	handler.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
-	// Routers
-	// h := handler.Group("/v1")
-	// {
-	// 	newTranslationRoutes(h, t, l)
-	// }
 }

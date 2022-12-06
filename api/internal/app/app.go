@@ -2,7 +2,6 @@
 package app
 
 import (
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -10,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"ways/config"
-	v1 "ways/internal/controller/http/v1"
+	"ways/internal/controller"
 	"ways/pkg/httpserver"
 	"ways/pkg/logger"
 	"ways/pkg/postgres"
@@ -18,18 +17,18 @@ import (
 
 // Run creates objects via constructors.
 func Run(cfg *config.Config) {
-	l := logger.New(cfg.Log.Level)
+	lg := logger.NewLogger(cfg.Log.Level)
 
 	// Repository
 	pg, err := postgres.New(cfg.PG.URL, postgres.MaxPoolSize(cfg.PG.PoolMax))
 	if err != nil {
-		l.Fatal(fmt.Errorf("app - Run - postgres.New: %w", err))
+		lg.Fatal().Msgf("app - Run - postgres.New: %w", err)
 	}
 	defer pg.Close()
 
 	// HTTP Server
 	handler := gin.New()
-	v1.NewRouter(handler, l)
+	controller.NewRouter(handler, lg)
 	httpServer := httpserver.New(handler, httpserver.Port(cfg.HTTP.Port))
 
 	// Waiting signal
@@ -38,14 +37,14 @@ func Run(cfg *config.Config) {
 
 	select {
 	case s := <-interrupt:
-		l.Info("app - Run - signal: " + s.String())
+		lg.Info().Msg("app - Run - signal: " + s.String())
 	case err = <-httpServer.Notify():
-		l.Error(fmt.Errorf("app - Run - httpServer.Notify: %w", err))
+		lg.Error().Msgf("app - Run - httpServer.Notify: %w", err)
 	}
 
 	// Shutdown
 	err = httpServer.Shutdown()
 	if err != nil {
-		l.Error(fmt.Errorf("app - Run - httpServer.Shutdown: %w", err))
+		lg.Error().Msgf("app - Run - httpServer.Shutdown: %w", err)
 	}
 }
