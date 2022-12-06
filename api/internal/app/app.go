@@ -10,21 +10,16 @@ import (
 
 	"ways/config"
 	"ways/internal/controller"
+	"ways/internal/di"
 	"ways/pkg/httpserver"
-	"ways/pkg/logger"
-	"ways/pkg/postgres"
 )
 
 // Run creates objects via constructors.
 func Run(cfg *config.Config) {
-	lg := logger.NewLogger(cfg.Log.Level)
+	DI := di.NewDI(cfg)
+	defer DI.DB.Close()
 
-	// Repository
-	pg, err := postgres.New(cfg.PG.URL, postgres.MaxPoolSize(cfg.PG.PoolMax))
-	if err != nil {
-		lg.Fatal().Msgf("app - Run - postgres.New: %w", err)
-	}
-	defer pg.Close()
+	lg := DI.Logger
 
 	// HTTP Server
 	handler := gin.New()
@@ -38,12 +33,12 @@ func Run(cfg *config.Config) {
 	select {
 	case s := <-interrupt:
 		lg.Info().Msg("app - Run - signal: " + s.String())
-	case err = <-httpServer.Notify():
+	case err := <-httpServer.Notify():
 		lg.Error().Msgf("app - Run - httpServer.Notify: %w", err)
 	}
 
 	// Shutdown
-	err = httpServer.Shutdown()
+	err := httpServer.Shutdown()
 	if err != nil {
 		lg.Error().Msgf("app - Run - httpServer.Shutdown: %w", err)
 	}
