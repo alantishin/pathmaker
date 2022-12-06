@@ -2,6 +2,8 @@ package controller
 
 import (
 	"net/http"
+	"ways/internal/di"
+	"ways/internal/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -36,4 +38,17 @@ func NewRouter(handler *gin.Engine, l *zerolog.Logger) {
 	// Prometheus metrics
 	handler.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
+	handler.GET("/ways")
+}
+
+func NewWaysRouter(DI *di.DI) *WaysRouter {
+	return &WaysRouter{
+		logger:      DI.Logger,
+		waysService: &DI.WaysService,
+	}
+}
+
+type WaysRouter struct {
+	logger      *zerolog.Logger
+	waysService *service.WaysService
 }
